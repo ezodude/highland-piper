@@ -6,6 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ezodude/highland-piper.git"
+  },
   "keywords": [
     "highland.js",
     "pipelines",
@@ -14,6 +18,10 @@
   ],
   "author": "Ezo Saleh <npm@ezosaleh.com> (http://ezosaleh.com/)",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ezodude/highland-piper/issues"
+  },
+  "homepage": "https://github.com/ezodude/highland-piper#readme",
   "dependencies": {
     "highland": "^2.8.1",
     "lodash": "^4.13.1"
