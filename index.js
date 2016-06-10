@@ -2,7 +2,7 @@
 
 const _ = require('lodash')
     , h = require('highland')
-    , consumer = require('./consumer');
+    , consumer = require('./lib/consumer');
 
 module.exports = Pipeline;
 
