@@ -13,11 +13,12 @@ This is the simplest use case. It mirrors a basic highland pipeline. But it does
 Use ```.add``` to add a transform. All transforms are highland transforms just like a simple highland ```_.pipeline(...)```
 
 ``` js
+const _ = require('highland');
 const piper = require('highland-piper');
 const stream = _([ {title: 'The Title'} ]);
 
 const pipeline = piper('title-changer');
-p.add('changeTitle', h.doto( obj => obj.title = 'New Title'));
+pipeline.add('changeTitle', _.doto( obj => obj.title = 'New Title'));
 stream.through(pipeline.consumer).each(o => console.log(o.title));
 ```
 
@@ -28,6 +29,7 @@ Aborts make a pipeline intelligent. You can skip unncessary processing for some 
 Use ```.abort``` to add an abort. Aborts take a name and a predicate. The predicate is a function that evaluates to ```true``` or ```false```. 
 
 ``` js
+const _ = require('highland');
 const piper = require('highland-piper');
 const stream = _([
   {name: 'John', rating: 1}, 
@@ -35,12 +37,12 @@ const stream = _([
   {name: 'Sam', rating: 3} 
 ]);
 
-const pipeline = piper('title-changer');
+const pipeline = piper('experiences');
 
 pipeline
-.add('addInfo', h.doto( obj => obj.info = obj.rating > 2 ? 'Experienced' : 'Beginner'))
+.add('addInfo', _.doto( obj => obj.info = obj.rating > 2 ? 'Experienced' : 'Beginner'))
 .abort('ignoreExperienced', obj => /experienced/i.test(obj.info))
-.add('assignWork', h.doto( obj => obj.work = 'Do extra work.'));
+.add('assignWork', _.doto( obj => obj.work = 'Do extra work.'));
 
 stream
 .through(pipeline.consumer)
@@ -65,10 +67,10 @@ Continuing from the example above.
 ...
 
 pipeline
-.add('addInfo', h.doto( obj => obj.info = obj.rating > 2 ? 'Experienced' : 'Beginner'))
+.add('addInfo', _.doto( obj => obj.info = obj.rating > 2 ? 'Experienced' : 'Beginner'))
 .abort('ignoreExperienced', obj => /experienced/i.test(obj.info))
-.add('assignWork', h.doto( obj => obj.work = 'Do extra work.'))
-.finally(h.doto( obj => delete obj.rating));
+.add('assignWork', _.doto( obj => obj.work = 'Do extra work.'))
+.finally(_.doto( obj => delete obj.rating));
 
 stream
 .through(pipeline.consumer)
