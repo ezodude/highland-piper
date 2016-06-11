@@ -1,6 +1,6 @@
 # highland-piper
 
-Create first class pipelines that enable abort and finalize logic.
+Create first class pipelines that enable abort and finalise logic.
 
 Use pure functions to create complex workflows and optimise data processing.
 
@@ -54,11 +54,9 @@ Only ```John & Tom``` will ```Do extra work```. But they will all ```John, Tom &
 
 ### finalising
 
-Use ```.finally``` to perform a transformation that applies to all objects including any aborts. Its a great place to perform any clean up of pipeline specific attributes or properties.
+Use ```.finally``` to finalise your pipeline. A Transform here applies to all objects including aborted ones. Use it to clean out pipeline specific attributes or properties in your objects.
 
-There can only be one call to ```.finally```. Any subsequent calls will override an existing ```.finally``` transformation.
-
-When used place it at the end of the pipeline.
+Also, call ```.finally``` once. Any subsequent calls will override the existing transform.
 
 Continuing from the example above.
 
