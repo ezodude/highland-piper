@@ -46,6 +46,18 @@ Pipeline.prototype.finally = function (transform) {
   finalize = transform;
 };
 
+Pipeline.prototype.exec = function () {
+  const args      = Array.prototype.slice.call(arguments, 0)
+      , stage     = args[0]
+      , data      = args.slice(1, args.length - 1)
+      , cb  = args[args.length - 1];
+
+  const found = pipes.find(pipe => pipe.name === stage);
+  if(!found){ throw new Error('Unknown stage.'); }
+
+  return found.run()(h(data)).collect().toCallback(cb);
+};
+
 Pipeline.prototype.consumer = function (s) {
   return consumer(s, pipes).through(finalize);
 };
