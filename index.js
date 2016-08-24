@@ -6,13 +6,17 @@ const _ = require('lodash')
 
 module.exports = Pipeline;
 
-let pipes, finalize = h.doto(() => {});
+const NIL_TRANSFORM = h.doto(() => {});
+
+let pipes, finalize = NIL_TRANSFORM;
 
 function Pipe(opts){
   this.type = opts.type
   this.name = opts.name;
   this.fn = opts.fn;
 }
+
+Pipe.nil = new Pipe({type: 'transform', fn: NIL_TRANSFORM});
 
 Pipe.prototype.run = function () {
   return this.fn;
@@ -68,8 +72,9 @@ Pipeline.prototype.exec = function () {
       , data      = args.slice(1, args.length - 1)
       , cb  = args[args.length - 1];
 
-  const found = pipes.find(pipe => pipe.name === stage);
-  if(!found){ throw new Error('Unknown stage.'); }
+  let found = Pipe.nil;
+  found = (stage === 'finally' && new Pipe({type: 'transform', fn: finalize})) || found;
+  found = (stage !== 'finally' && pipes.find(pipe => pipe.name === stage) )|| found;
 
   return found.exec(data, cb);
 };
