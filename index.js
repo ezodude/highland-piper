@@ -42,13 +42,6 @@ Pipeline.prototype.abort = function (name, predicate) {
   return this;
 };
 
-Pipeline.prototype.transforms = function () {
-  return pipes.filter(e => e.type === 'transform').reduce((a, b) => {
-    a[b.name] = b.fn;
-    return a;
-  }, {});
-};
-
 Pipeline.prototype.finally = function (transform) {
   finalize = transform;
 };
