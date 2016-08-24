@@ -18,6 +18,10 @@ Pipe.prototype.run = function () {
   return this.fn;
 };
 
+Pipe.prototype.exec = function (data, cb) {
+  return this.run()(h(data)).collect().toCallback(cb);
+};
+
 function Pipeline(title) {
   if (!(this instanceof Pipeline)) return new Pipeline(title);
   this.title = title;
@@ -55,7 +59,7 @@ Pipeline.prototype.exec = function () {
   const found = pipes.find(pipe => pipe.name === stage);
   if(!found){ throw new Error('Unknown stage.'); }
 
-  return found.run()(h(data)).collect().toCallback(cb);
+  return found.exec(data, cb);
 };
 
 Pipeline.prototype.consumer = function (s) {
