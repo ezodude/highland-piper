@@ -6,7 +6,9 @@ const _ = require('lodash')
 
 module.exports = Pipeline;
 
-let pipes, finalize = h.doto(() => {});
+const NIL_TRANSFORM = h.doto(() => {});
+
+let pipes, finalize = NIL_TRANSFORM;
 
 function Pipe(opts){
   this.type = opts.type
@@ -14,8 +16,26 @@ function Pipe(opts){
   this.fn = opts.fn;
 }
 
+Pipe.nil = new Pipe({type: 'transform', fn: NIL_TRANSFORM});
+
 Pipe.prototype.run = function () {
   return this.fn;
+};
+
+Pipe.prototype.exec = function (data, cb) {
+  if(this.type === 'abort') {
+    let error, result;
+    try{
+      result = this.run()(data[0]);
+    }
+    catch(err){
+      error = err;
+    }
+    finally{
+      return cb(error, result);
+    }
+  }
+  return this.run()(h(data).head()).toCallback((err, out) => cb(err, out));
 };
 
 function Pipeline(title) {
@@ -42,15 +62,21 @@ Pipeline.prototype.abort = function (name, predicate) {
   return this;
 };
 
-Pipeline.prototype.transforms = function () {
-  return pipes.filter(e => e.type === 'transform').reduce((a, b) => {
-    a[b.name] = b.fn;
-    return a;
-  }, {});
-};
-
 Pipeline.prototype.finally = function (transform) {
   finalize = transform;
+};
+
+Pipeline.prototype.exec = function () {
+  const args      = Array.prototype.slice.call(arguments, 0)
+      , stage     = args[0]
+      , data      = args.slice(1, args.length - 1)
+      , cb  = args[args.length - 1];
+
+  let found = Pipe.nil;
+  found = (stage === 'finally' && new Pipe({type: 'transform', fn: finalize})) || found;
+  found = (stage !== 'finally' && pipes.find(pipe => pipe.name === stage) )|| found;
+
+  return found.exec(data, cb);
 };
 
 Pipeline.prototype.consumer = function (s) {
