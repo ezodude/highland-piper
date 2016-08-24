@@ -19,7 +19,19 @@ Pipe.prototype.run = function () {
 };
 
 Pipe.prototype.exec = function (data, cb) {
-  return this.run()(h(data)).collect().toCallback(cb);
+  if(this.type === 'abort') {
+    let error, result;
+    try{
+      result = this.run()(data[0]);
+    }
+    catch(err){
+      error = err;
+    }
+    finally{
+      return cb(error, result);
+    }
+  }
+  return this.run()(h(data).head()).toCallback((err, out) => cb(err, out));
 };
 
 function Pipeline(title) {
