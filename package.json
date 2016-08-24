@@ -1,6 +1,6 @@
 {
   "name": "highland-piper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Create highland pipelines with abort and finalize logic.",
   "main": "index.js",
   "scripts": {
