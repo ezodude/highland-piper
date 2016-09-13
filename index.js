@@ -1,14 +1,12 @@
 'use strict';
 
-const _ = require('lodash')
-    , h = require('highland')
-    , consumer = require('./lib/consumer');
+const _         = require('lodash')
+    , h         = require('highland')
+    , consumer  = require('./lib/consumer');
 
 module.exports = Pipeline;
 
 const NIL_TRANSFORM = h.doto(() => {});
-
-let pipes, finalize = NIL_TRANSFORM;
 
 function Pipe(opts){
   this.type = opts.type
@@ -41,11 +39,16 @@ Pipe.prototype.exec = function (data, cb) {
 function Pipeline(title) {
   if (!(this instanceof Pipeline)) return new Pipeline(title);
   this.title = title;
-  pipes = [];
+  this.pipes = [];
+  this.finalize = NIL_TRANSFORM;
+
+  this.consumer = function(stream){
+    return consumer(stream, this.pipes).through(this.finalize);
+  }.bind(this);
 }
 
 Pipeline.prototype.add = function (name, transform) {
-  pipes.push(new Pipe({
+  this.pipes.push(new Pipe({
     type: 'transform',
     name: name,
     fn: transform
@@ -54,7 +57,7 @@ Pipeline.prototype.add = function (name, transform) {
 };
 
 Pipeline.prototype.abort = function (name, predicate) {
-  pipes.push(new Pipe({
+  this.pipes.push(new Pipe({
     type: 'abort',
     name: name,
     fn: predicate
@@ -63,7 +66,7 @@ Pipeline.prototype.abort = function (name, predicate) {
 };
 
 Pipeline.prototype.finally = function (transform) {
-  finalize = transform;
+  this.finalize = transform;
 };
 
 Pipeline.prototype.exec = function () {
@@ -73,12 +76,8 @@ Pipeline.prototype.exec = function () {
       , cb  = args[args.length - 1];
 
   let found = Pipe.nil;
-  found = (stage === 'finally' && new Pipe({type: 'transform', fn: finalize})) || found;
-  found = (stage !== 'finally' && pipes.find(pipe => pipe.name === stage) )|| found;
+  found = (stage === 'finally' && new Pipe({type: 'transform', fn: this.finalize})) || found;
+  found = (stage !== 'finally' && this.pipes.find(pipe => pipe.name === stage) )|| found;
 
   return found.exec(data, cb);
-};
-
-Pipeline.prototype.consumer = function (s) {
-  return consumer(s, pipes).through(finalize);
 };
