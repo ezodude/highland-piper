@@ -1,6 +1,6 @@
 # highland-piper
 
-Create first class pipelines that enable abort and finalise logic.
+Builds on [highland](http://highlandjs.org/) to create first class pipelines that enable abort and finalise logic.
 
 Use pure functions to create complex workflows and optimise data processing.
 
